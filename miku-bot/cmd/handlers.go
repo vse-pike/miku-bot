@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"miku-bot/internal"
 	"regexp"
+	"strings"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
@@ -23,13 +24,13 @@ func handleStart(c tele.Context) error {
 
 func makeHandleDownload(workerClient *internal.Client, log *slog.Logger) tele.HandlerFunc {
 	return func(c tele.Context) error {
-		if !socialLinkRe.MatchString(c.Text()) {
-			log.Info("message does not match url pattern", "text", c.Text())
+		url, isExtracted := extractDownloadURL(c)
+
+		if isExtracted == false {
 			return nil
 		}
 
 		chatID := c.Chat().ID
-		url := c.Text()
 		log.Info("download requested", "chat_id", chatID, "url", url)
 
 		mess, err := c.Bot().Reply(c.Message(), "⏳ Начинаю загрузку")
@@ -62,4 +63,26 @@ func makeHandleDownload(workerClient *internal.Client, log *slog.Logger) tele.Ha
 
 		return err
 	}
+}
+
+func extractDownloadURL(c tele.Context) (string, bool) {
+	mention := "@" + c.Bot().Me.Username
+	if strings.Contains(c.Text(), mention) {
+
+		if url := socialLinkRe.FindString(c.Text()); url != "" {
+			return url, true
+		}
+
+		if c.Message().IsReply() {
+			if url := socialLinkRe.FindString(c.Message().ReplyTo.Text); url != "" {
+				return url, true
+			}
+		}
+	} else {
+		if url := socialLinkRe.FindString(c.Text()); url != "" && c.Chat().Type == tele.ChatPrivate {
+			return url, true
+		}
+	}
+
+	return "", false
 }
