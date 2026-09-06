@@ -2,3 +2,4 @@
 download-worker/venv/
 download-worker/downloads/
 download-worker/README.md
+docker-compose.yml
