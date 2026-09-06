@@ -4,9 +4,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY worker/requirements.txt ./
+COPY download-worker/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-COPY worker/main.py ./
+COPY download-worker/main.py ./
 
 ENV HOST=0.0.0.0
 EXPOSE 5005

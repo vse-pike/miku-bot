@@ -1,3 +1,4 @@
 .env
 download-worker/venv/
 download-worker/downloads/
+download-worker/README.md
