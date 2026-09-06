@@ -1,0 +1,28 @@
+name: DockerHub image push
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  docker_hub_image_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set image tag
+        run: echo "TAG=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+
+      - name: Build and push Docker images
+        run: |
+          docker build -f docker/go-bot.Dockerfile -t vsepike/miku-bot:${{ env.TAG }} -t vsepike/miku-bot:latest .
+          docker build -f docker/py-worker.Dockerfile -t vsepike/miku-worker:${{ env.TAG }} -t vsepike/miku-worker:latest .
+          docker push vsepike/miku-bot --all-tags
+          docker push vsepike/miku-worker --all-tags
