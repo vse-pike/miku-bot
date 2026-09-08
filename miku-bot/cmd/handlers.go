@@ -11,7 +11,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-var socialLinkRe = regexp.MustCompile(`^https?://([a-z0-9-]+\.)*?(youtube\.com|youtu\.be|instagram\.com|tiktok\.com|twitter\.com|x\.com)(/\S*)?`)
+var socialLinkRe = regexp.MustCompile(`https?://([a-z0-9-]+\.)*?(youtube\.com|youtu\.be|instagram\.com|tiktok\.com|twitter\.com|x\.com)(/\S*)?`)
 
 func registerHandlers(bot *tele.Bot, workerClient *internal.Client, log *slog.Logger) {
 	bot.Handle("/start", handleStart)
