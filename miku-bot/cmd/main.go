@@ -18,6 +18,7 @@ func main() {
 
 	if err := godotenv.Load(); err != nil {
 		log.Error("no .env file found, relying on real env vars")
+		os.Exit(1)
 	}
 
 	token := os.Getenv("BOT_TOKEN")
