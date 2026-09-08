@@ -17,8 +17,7 @@ func main() {
 	log := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
 	if err := godotenv.Load(); err != nil {
-		log.Error("no .env file found, relying on real env vars")
-		os.Exit(1)
+		log.Info("no .env file found, relying on real env vars")
 	}
 
 	token := os.Getenv("BOT_TOKEN")
