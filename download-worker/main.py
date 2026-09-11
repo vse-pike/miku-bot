@@ -8,6 +8,9 @@ from yt_dlp import YoutubeDL
 DOWNLOAD_DIR = os.environ.get("DOWNLOAD_DIR", "./downloads")
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", 5005))
+# Нужен только для закрытого контента (18+, приватные аккаунты) — TikTok на
+# таких видео требует логин. Обычные ролики качаются и без файла.
+COOKIES_FILE = os.environ.get("COOKIES_FILE")
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
@@ -22,21 +25,20 @@ app = Flask(__name__)
 # MikuVL/yt_downloader/handlers/downloader.py, тут просто без async-обвязки.
 LIGHT_DOMAINS = ["tiktok.com", "instagram.com", "x.com", "twitter.com"]
 
-ydl_opts = {
-    "format": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+common_opts = {
     "merge_output_format": "mp4",
     "outtmpl": os.path.join(DOWNLOAD_DIR, "%(id)s.%(ext)s"),
     "noplaylist": True,
 }
-ydl = YoutubeDL(ydl_opts)
+if COOKIES_FILE:
+    common_opts["cookiefile"] = COOKIES_FILE
 
-ydl_light_opts = {
-    "format": "best",
-    "merge_output_format": "mp4",
-    "outtmpl": os.path.join(DOWNLOAD_DIR, "%(id)s.%(ext)s"),
-    "noplaylist": True,
-}
-ydl_light = YoutubeDL(ydl_light_opts)
+ydl = YoutubeDL({
+    **common_opts,
+    "format": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+})
+
+ydl_light = YoutubeDL({**common_opts, "format": "best"})
 
 
 def is_light_domain(url: str) -> bool:
